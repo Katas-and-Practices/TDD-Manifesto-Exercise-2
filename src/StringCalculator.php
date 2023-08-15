@@ -8,15 +8,13 @@ class StringCalculator
 {
     public function add(string $numbers): int
     {
-        if ($numbers === '') {
-            return 0;
-        }
         $numbers = explode(',', $numbers);
+        $result = 0;
 
-        if (count($numbers) === 1) {
-            return (int)$numbers[0];
+        foreach ($numbers as $number) {
+            $result += (int)$number;
         }
 
-        return (int)$numbers[0] + (int)$numbers[1];
+        return $result;
     }
 }

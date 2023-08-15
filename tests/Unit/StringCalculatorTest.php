@@ -11,29 +11,30 @@ use PHPUnit\Framework\TestCase;
 
 class StringCalculatorTest extends TestCase
 {
+    protected StringCalculator $calculator;
+
+    public function setUp(): void
+    {
+        $this->calculator = new StringCalculator();
+    }
+
     public function testShouldReturnZeroGivenEmptyString(): void
     {
-        $calculator = new StringCalculator();
-
-        $result = $calculator->add('');
+        $result = $this->calculator->add('');
 
         $this->assertSame(0, $result);
     }
 
     public function testShouldReturnNumberGivenOneNumber(): void
     {
-        $calculator = new StringCalculator();
-
-        $result = $calculator->add('14');
+        $result = $this->calculator->add('14');
 
         $this->assertSame(14, $result);
     }
 
     public function testShouldReturnSumGivenTwoNumbers(): void
     {
-        $calculator = new StringCalculator();
-
-        $result = $calculator->add('130,25');
+        $result = $this->calculator->add('130,25');
 
         $this->assertSame(155, $result);
     }
