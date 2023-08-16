@@ -8,6 +8,7 @@ class NumberStringParser
 {
     private array $validSeparators;
     private array $errorMessages = [];
+    private array $numbers = [];
 
     public function __construct(
         private string $numbersString,
@@ -18,37 +19,27 @@ class NumberStringParser
 
     public function parse(): array
     {
-        $customSeparator = $this->extractCustomSeparator();
+        $customSeparator = $this->returnCustomSeparator();
         $this->removeCustomSeparatorSection($customSeparator);
         $this->validSeparators = is_null($customSeparator) ? $this->validSeparators : [$customSeparator];
-        $numbers = $this->extractNumbers();
-        $this->checkForErrors($numbers);
+        $this->extractNumbers();
+        $this->throwErrors();
 
-        return $numbers;
+        return $this->numbers;
     }
 
-    private function extractNumbers(): array
+    private function extractNumbers(): void
     {
-        $numbers = [];
         $previousNumberStartingIndex = 0;
         $isPreviousIndexNumber = false;
         $separatorIndex = 0;
-        $this->numbersStringLength = strlen($this->numbersString);
 
-        for ($i = 0; $i < $this->numbersStringLength; $i++) {
+        for ($i = 0; $i < strlen($this->numbersString); $i++) {
             if (!preg_match('/[0-9\-]/', $this->numbersString[$i])) {
                 if ($isPreviousIndexNumber) {
-                    $numbers[] = $this->extractNumber($previousNumberStartingIndex, $i);
+                    $this->numbers[] = $this->extractNumber($previousNumberStartingIndex, $i);
 
-                    $matched = false;
-                    for ($j = 0; $j < count($this->validSeparators); $j++) {
-                        if ($this->numbersString[$i] === $this->validSeparators[$j][$separatorIndex]) {
-                            $matched = true;
-                        }
-                    }
-                    if (!$matched) {
-                        $this->errorMessages[] = 'Expected "' . $this->validSeparators[0] . '" but "' . $this->numbersString[$i] . "\" found at position $i";
-                    }
+                    $this->validateSeparatorByMatchingCharWithSeparators($i, $separatorIndex);
                 }
 
                 $separatorIndex++;
@@ -63,9 +54,7 @@ class NumberStringParser
                 $isPreviousIndexNumber = true;
             }
         }
-        $numbers[] = (int)substr($this->numbersString, $previousNumberStartingIndex);
-
-        return $numbers;
+        $this->numbers[] = $this->extractNumber($previousNumberStartingIndex, $i);
     }
 
     private function extractNumber(int $previousIndex, int $i)
@@ -73,7 +62,20 @@ class NumberStringParser
         return (int) substr($this->numbersString, $previousIndex, $i - $previousIndex);
     }
 
-    private function extractCustomSeparator(): string|null
+    private function validateSeparatorByMatchingCharWithSeparators(int $stringIndex, int $separatorIndex): void
+    {
+        $matched = false;
+        for ($i = 0; $i < count($this->validSeparators); $i++) {
+            if ($this->numbersString[$stringIndex] === $this->validSeparators[$i][$separatorIndex]) {
+                $matched = true;
+            }
+        }
+        if (!$matched) {
+            $this->errorMessages[] = 'Expected "' . $this->validSeparators[0] . '" but "' . $this->numbersString[$stringIndex] . "\" found at position $stringIndex";
+        }
+    }
+
+    private function returnCustomSeparator(): string|null
     {
         $START_INDEX_OF_CUSTOM_SEPARATOR = 2;
         $customSeparator = null;
@@ -98,6 +100,16 @@ class NumberStringParser
         }
     }
 
+    private function throwErrors()
+    {
+        $this->validateStringEnding();
+        $this->validateNoNegativeNumbers();
+
+        if (count($this->errorMessages)) {
+            throw new \Exception(implode("\n", $this->errorMessages));
+        }
+    }
+
     private function validateStringEnding(): void
     {
         $stringLength = strlen($this->numbersString);
@@ -107,11 +119,11 @@ class NumberStringParser
         }
     }
 
-    private function validateNoNegativeNumbers(array $numbers): void
+    private function validateNoNegativeNumbers(): void
     {
         $negativeNumbersString = '';
 
-        foreach ($numbers as $number) {
+        foreach ($this->numbers as $number) {
             if ($number < 0) {
                 $negativeNumbersString .= (strlen($negativeNumbersString) ? ', ' : '') . $number;
             }
@@ -119,16 +131,6 @@ class NumberStringParser
 
         if (strlen($negativeNumbersString)) {
             array_unshift($this->errorMessages, 'Negative number(s) not allowed: ' . $negativeNumbersString);
-        }
-    }
-
-    private function checkForErrors(array $numbers)
-    {
-        $this->validateStringEnding();
-        $this->validateNoNegativeNumbers($numbers);
-
-        if (count($this->errorMessages)) {
-            throw new \Exception(implode("\n", $this->errorMessages));
         }
     }
 }
