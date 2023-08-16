@@ -10,7 +10,7 @@ class StringCalculator
 
     public function add(string $inputNumbers): int
     {
-        $this->validateString($inputNumbers);
+        $this->validateStringEnding($inputNumbers);
         $customSeparator = $this->getCustomSeparator($inputNumbers);
         $numbers = $this->parseNumbersString($inputNumbers, $customSeparator);
         $result = $this->sum($numbers);
@@ -58,17 +58,7 @@ class StringCalculator
         }
         $numbers[] = (int)substr($numbersString, $previousIndex);
 
-        $negativeNumbersString = '';
-
-        foreach ($numbers as $number) {
-            if ($number < 0) {
-                $negativeNumbersString .= (strlen($negativeNumbersString) ? ', ' : '') . $number;
-            }
-        }
-
-        if (strlen($negativeNumbersString)) {
-            throw new \Exception('Negative number(s) not allowed: ' . $negativeNumbersString);
-        }
+        $this->validateNoNegativeNumbers($numbers);
 
         return $numbers;
     }
@@ -96,12 +86,27 @@ class StringCalculator
         return $customSeparator;
     }
 
-    private function validateString(string $numbersString): void
+    private function validateStringEnding(string $numbersString): void
     {
         $stringLength = strlen($numbersString);
 
         if ($stringLength > 0 && in_array($numbersString[$stringLength - 1], $this->validSeparators)) {
             throw new \Exception('Cannot have separator at the end of string');
+        }
+    }
+
+    private function validateNoNegativeNumbers(array $numbers): void
+    {
+        $negativeNumbersString = '';
+
+        foreach ($numbers as $number) {
+            if ($number < 0) {
+                $negativeNumbersString .= (strlen($negativeNumbersString) ? ', ' : '') . $number;
+            }
+        }
+
+        if (strlen($negativeNumbersString)) {
+            throw new \Exception('Negative number(s) not allowed: ' . $negativeNumbersString);
         }
     }
 }
