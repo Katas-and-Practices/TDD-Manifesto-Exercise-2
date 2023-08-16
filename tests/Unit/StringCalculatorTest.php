@@ -87,4 +87,32 @@ class StringCalculatorTest extends TestCase
 
         $this->calculator->add("325\n3,100\n");
     }
+
+    public function testShouldSumTwoNumbersGivenSingleLengthCustomSeparator(): void
+    {
+        $result = $this->calculator->add("//|\n42|35");
+
+        $this->assertSame(77, $result);
+    }
+
+    public function testShouldSumTwoNumbersGivenMultiLengthCustomSeparator(): void
+    {
+        $result = $this->calculator->add("//sep\n197sep5");
+
+        $this->assertSame(202, $result);
+    }
+
+    public function testShouldSumMultipleNumbersGivenMultiLengthCustomSeparator(): void
+    {
+        $result = $this->calculator->add("//my\n19my425my-6my9028my33");
+
+        $this->assertSame(9499, $result);
+    }
+
+    public function testShouldThrowExceptionWithMessageGivenWrongUsageOfSeparatorWithCustomSeparator(): void
+    {
+        $this->expectExceptionMessage('Expected ";" but "," found at position 6');
+
+        $this->calculator->add("//;\n4;23;9,12");
+    }
 }
