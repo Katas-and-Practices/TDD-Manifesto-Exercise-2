@@ -10,6 +10,7 @@ class StringCalculator
 
     public function add(string $inputNumbers): int
     {
+        $this->validateString($inputNumbers);
         $numbers = $this->parseNumbersString($inputNumbers);
         $result = $this->sum($numbers);
 
@@ -18,13 +19,9 @@ class StringCalculator
 
     private function parseNumbersString(string $numbersString): array
     {
-        $stringLength = strlen($numbersString);
-
-        if ($stringLength > 0 && in_array($numbersString[$stringLength - 1], $this->validSeparators)) {
-            throw new \Exception('Cannot have separator at the end of string');
-        }
         $numbers = [];
         $previousIndex = 0;
+        $stringLength = strlen($numbersString);
 
         for ($i = 0; $i < $stringLength; $i++) {
             if (in_array($numbersString[$i], $this->validSeparators)) {
@@ -40,5 +37,14 @@ class StringCalculator
     private function sum(array $numbers)
     {
         return array_reduce($numbers, fn($carry, $number) => $carry + $number);
+    }
+
+    private function validateString(string $numbersString): void
+    {
+        $stringLength = strlen($numbersString);
+
+        if ($stringLength > 0 && in_array($numbersString[$stringLength - 1], $this->validSeparators)) {
+            throw new \Exception('Cannot have separator at the end of string');
+        }
     }
 }
