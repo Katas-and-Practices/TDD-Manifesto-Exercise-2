@@ -53,4 +53,10 @@ class StringCalculatorTest extends TestCase
         $this->assertSame(613 , $result);
     }
 
+    public function testShouldAcceptNewlineAsSeparator(): void
+    {
+        $result = $this->calculator->add("20\n30,50");
+
+        $this->assertSame(100, $result);
+    }
 }
