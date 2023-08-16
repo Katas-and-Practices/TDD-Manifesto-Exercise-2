@@ -38,4 +38,19 @@ class StringCalculatorTest extends TestCase
 
         $this->assertSame(155, $result);
     }
+
+    public function testShouldReturnSumGivenThreeNumbers(): void
+    {
+        $result = $this->calculator->add('33,98,72');
+
+        $this->assertSame(203, $result);
+    }
+
+    public function testShouldReturnSumGivenSevenNumbers(): void
+    {
+        $result = $this->calculator->add('245,-5,0,233,60,003,77');
+
+        $this->assertSame(613 , $result);
+    }
+
 }
