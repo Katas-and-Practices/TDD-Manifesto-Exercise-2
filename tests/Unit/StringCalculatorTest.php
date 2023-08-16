@@ -48,9 +48,9 @@ class StringCalculatorTest extends TestCase
 
     public function testShouldReturnSumGivenSevenNumbers(): void
     {
-        $result = $this->calculator->add('245,-5,0,233,60,003,77');
+        $result = $this->calculator->add('245,5,0,233,60,003,77');
 
-        $this->assertSame(613 , $result);
+        $this->assertSame(623 , $result);
     }
 
     public function testShouldAcceptNewlineAsSeparator(): void
@@ -104,9 +104,9 @@ class StringCalculatorTest extends TestCase
 
     public function testShouldSumMultipleNumbersGivenMultiLengthCustomSeparator(): void
     {
-        $result = $this->calculator->add("//my\n19my425my-6my9028my33");
+        $result = $this->calculator->add("//my\n19my425my6my9028my33");
 
-        $this->assertSame(9499, $result);
+        $this->assertSame(9511, $result);
     }
 
     public function testShouldThrowExceptionWithMessageGivenWrongUsageOfSeparatorWithCustomSeparator(): void
@@ -114,5 +114,12 @@ class StringCalculatorTest extends TestCase
         $this->expectExceptionMessage('Expected ";" but "," found at position 6');
 
         $this->calculator->add("//;\n4;23;9,12");
+    }
+
+    public function testShouldThrowExceptionWithMessageGivenNegativeNumbers(): void
+    {
+        $this->expectExceptionMessage('Negative number(s) not allowed: -3, -50');
+
+        $this->calculator->add("12\n-3\n99\n-50");
     }
 }

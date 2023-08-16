@@ -58,6 +58,18 @@ class StringCalculator
         }
         $numbers[] = (int)substr($numbersString, $previousIndex);
 
+        $negativeNumbersString = '';
+
+        foreach ($numbers as $number) {
+            if ($number < 0) {
+                $negativeNumbersString .= (strlen($negativeNumbersString) ? ', ' : '') . $number;
+            }
+        }
+
+        if (strlen($negativeNumbersString)) {
+            throw new \Exception('Negative number(s) not allowed: ' . $negativeNumbersString);
+        }
+
         return $numbers;
     }
 
