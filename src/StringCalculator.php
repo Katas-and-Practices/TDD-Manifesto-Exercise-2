@@ -18,13 +18,16 @@ class StringCalculator
         return $result;
     }
 
+    // TODO: Separate into another NumberStringParserClass ?
     private function parseNumbersString(string $numbersString, string|null $customSeparator): array
     {
         $numbers = [];
         $previousIndex = 0;
-        $stringLength = strlen($numbersString);
+        $numbersStringLength = strlen($numbersString);
         $separators = is_null($customSeparator) ? $this->validSeparators : [$customSeparator];
-        for ($i = 0; $i < $stringLength; $i++) {
+        $errorMessages = [];
+
+        for ($i = 0; $i < $numbersStringLength; $i++) {
             if (in_array($numbersString[$i], $separators)) {
                 $numbers[] = (int)substr($numbersString, $previousIndex, $i + 1 - $previousIndex);
                 $previousIndex = $i + 1;
@@ -32,33 +35,51 @@ class StringCalculator
             elseif ($numbersString[$i] !== '-' && !is_numeric($numbersString[$i])) {
                 for ($sepIndex = 0; $sepIndex < count($separators); $sepIndex++) {
                     $separatorMatch = true;
-                    for ($k = 0, $q = $i; $k < strlen($separators[$sepIndex]) && $q < $stringLength; $k++, $q++) {
+                    for ($k = 0, $q = $i; $k < strlen($separators[$sepIndex]) && $q < $numbersStringLength; $k++, $q++) {
                         if ($separators[$sepIndex][$k] !== $numbersString[$q]) {
                             $separatorMatch = false;
                             break;
                         }
                     }
                     if ($separatorMatch) {
-                        $numbers[] = (int)substr($numbersString, $previousIndex, $i - $previousIndex);
-                        $i += strlen($separators[$sepIndex]) - 1;
-                        $previousIndex = $i + 1;
                         break;
                     }
-                    else {
-                        $message = is_null($customSeparator)
-                            ? 'Expected one of "' . implode(' ', $separators)
-                            : "Expected \"$customSeparator";
+                }
+                if ($separatorMatch) {
+                    $numbers[] = (int)substr($numbersString, $previousIndex, $i - $previousIndex);
+                    $i += strlen($separators[$sepIndex]) - 1;
+                    $previousIndex = $i + 1;
+                }
+                elseif ($sepIndex === count($separators)) {
+                    $message = is_null($customSeparator)
+                        ? 'Expected one of "' . implode(' ', $separators)
+                        : "Expected \"$customSeparator";
 
-                        $message .= '" but "' . $numbersString[$i] . '" found at position ' . $i;
-
-                        throw new \Exception($message);
+                    $invalidSeparator = '';
+                    $restOfNumbersString = substr($numbersString, $i);
+                    for ($j = 0; $j < strlen($restOfNumbersString); $j++) {
+                        if (preg_match('/[0-9\-]/', $restOfNumbersString[$j])) {
+                            $invalidSeparator = substr($restOfNumbersString, 0, $j);
+                            break;
+                        }
                     }
+                    $errorMessages[] = $message . '" but "' . $invalidSeparator . '" found at position ' . $i;
+
+                    $i += strlen($invalidSeparator) - 1;
+                    $previousIndex = $i + 1;
                 }
             }
         }
         $numbers[] = (int)substr($numbersString, $previousIndex);
 
-        $this->validateNoNegativeNumbers($numbers);
+        $negativeNumbersError = $this->validateNoNegativeNumbers($numbers);
+        if ($negativeNumbersError) {
+            array_unshift($errorMessages, $negativeNumbersError);
+        }
+
+        if (count($errorMessages)) {
+            throw new \Exception(implode("\n", $errorMessages));
+        }
 
         return $numbers;
     }
@@ -95,7 +116,7 @@ class StringCalculator
         }
     }
 
-    private function validateNoNegativeNumbers(array $numbers): void
+    private function validateNoNegativeNumbers(array $numbers): string|null
     {
         $negativeNumbersString = '';
 
@@ -106,7 +127,9 @@ class StringCalculator
         }
 
         if (strlen($negativeNumbersString)) {
-            throw new \Exception('Negative number(s) not allowed: ' . $negativeNumbersString);
+            return 'Negative number(s) not allowed: ' . $negativeNumbersString;
         }
+
+        return null;
     }
 }

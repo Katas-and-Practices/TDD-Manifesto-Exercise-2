@@ -122,4 +122,11 @@ class StringCalculatorTest extends TestCase
 
         $this->calculator->add("12\n-3\n99\n-50");
     }
+
+    public function testShouldThrowExceptionWithAllMessagesGivenNegativeNumbersAndInvalidSeparator(): void
+    {
+        $this->expectExceptionMessage("Negative number(s) not allowed: -10, -66, -3\nExpected \"|\" but \";\" found at position 10");
+
+        $this->calculator->add("//|\n15|-10|235;-66|-3");
+    }
 }
