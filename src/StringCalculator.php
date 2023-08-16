@@ -6,19 +6,33 @@ namespace ExerciseTwo;
 
 class StringCalculator
 {
+    private $validSeparators = [',', "\n"];
+
     public function add(string $inputNumbers): int
     {
-        $result = 0;
-        $previousIndex = 0;
+        $numbers = $this->parseNumbersString($inputNumbers);
+        $result = $this->sum($numbers);
 
-        for ($i = 0; $i < strlen($inputNumbers); $i++) {
-            if ($inputNumbers[$i] === ',' || $inputNumbers[$i] === "\n") {
-                $result += (int)substr($inputNumbers, $previousIndex, $i + 1 - $previousIndex);
+        return $result;
+    }
+
+    private function parseNumbersString(string $numbersString): array
+    {
+        $numbers = [];
+        $previousIndex = 0;
+        for ($i = 0; $i < strlen($numbersString); $i++) {
+            if (in_array($numbersString[$i], $this->validSeparators)) {
+                $numbers[] = (int)substr($numbersString, $previousIndex, $i + 1 - $previousIndex);
                 $previousIndex = $i + 1;
             }
         }
-        $result += (int)substr($inputNumbers, $previousIndex);
+        $numbers[] = (int)substr($numbersString, $previousIndex);
 
-        return $result;
+        return $numbers;
+    }
+
+    private function sum(array $numbers)
+    {
+        return array_reduce($numbers, fn($carry, $number) => $carry + $number);
     }
 }
