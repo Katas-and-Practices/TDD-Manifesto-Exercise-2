@@ -18,9 +18,15 @@ class StringCalculator
 
     private function parseNumbersString(string $numbersString): array
     {
+        $stringLength = strlen($numbersString);
+
+        if ($stringLength > 0 && in_array($numbersString[$stringLength - 1], $this->validSeparators)) {
+            throw new \Exception('Cannot have separator at the end of string');
+        }
         $numbers = [];
         $previousIndex = 0;
-        for ($i = 0; $i < strlen($numbersString); $i++) {
+
+        for ($i = 0; $i < $stringLength; $i++) {
             if (in_array($numbersString[$i], $this->validSeparators)) {
                 $numbers[] = (int)substr($numbersString, $previousIndex, $i + 1 - $previousIndex);
                 $previousIndex = $i + 1;

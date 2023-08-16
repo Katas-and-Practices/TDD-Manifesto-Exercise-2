@@ -59,4 +59,32 @@ class StringCalculatorTest extends TestCase
 
         $this->assertSame(100, $result);
     }
+
+    public function testShouldThrowErrorGivenSingleComma(): void
+    {
+        $this->expectException(\Exception::class);
+
+        $this->calculator->add(',');
+    }
+
+    public function testShouldThrowErrorGivenSingleNewline(): void
+    {
+        $this->expectException(\Exception::class);
+
+        $this->calculator->add("\n");
+    }
+
+    public function testShouldThrowErrorGivenCommaAtTheEnd(): void
+    {
+        $this->expectException(\Exception::class);
+
+        $this->calculator->add("45,23\n100,");
+    }
+
+    public function testShouldThrowErrorGivenNewlineAtTheEnd(): void
+    {
+        $this->expectException(\Exception::class);
+
+        $this->calculator->add("325\n3,100\n");
+    }
 }
