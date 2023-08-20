@@ -2,23 +2,27 @@
 
 declare(strict_types = 1);
 
-namespace ExerciseTwo;
+namespace ExerciseTwo\Parsers;
 
-class NumberStringParser
+require_once 'NumberStringParser.php';
+
+class NumberStringSimpleParser implements NumberStringParser
 {
     private array $validSeparators;
     private array $errorMessages = [];
     private array $numbers = [];
+    private string $numbersString;
 
     public function __construct(
-        private string $numbersString,
-        array $defaultSeparators = [',', "\n"],
+        array $defaultSeparators = [',', "\n"]
     ) {
         $this->validSeparators = $defaultSeparators;
     }
 
-    public function parse(): array
+    public function parse(string $numbersString): array
     {
+        $this->numbersString = $numbersString;
+
         $customSeparator = $this->returnCustomSeparator();
         $this->removeCustomSeparatorSection($customSeparator);
         $this->validSeparators = is_null($customSeparator) ? $this->validSeparators : [$customSeparator];

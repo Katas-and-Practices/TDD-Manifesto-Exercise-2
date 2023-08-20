@@ -6,6 +6,7 @@ namespace ExerciseTwo\Tests\Unit;
 
 require 'src/StringCalculator.php';
 
+use ExerciseTwo\Parsers\NumberStringParser;
 use ExerciseTwo\StringCalculator;
 use PHPUnit\Framework\TestCase;
 
