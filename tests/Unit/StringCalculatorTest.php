@@ -4,9 +4,10 @@ declare(strict_types = 1);
 
 namespace ExerciseTwo\Tests\Unit;
 
-require 'src/StringCalculator.php';
+require_once 'src/parsers/NumberStringSimpleParser.php';
+require_once 'src/StringCalculator.php';
 
-use ExerciseTwo\Parsers\NumberStringParser;
+use ExerciseTwo\Parsers\NumberStringSimpleParser;
 use ExerciseTwo\StringCalculator;
 use PHPUnit\Framework\TestCase;
 
@@ -16,7 +17,7 @@ class StringCalculatorTest extends TestCase
 
     public function setUp(): void
     {
-        $this->calculator = new StringCalculator();
+        $this->calculator = new StringCalculator(new NumberStringSimpleParser());
     }
 
     public function testShouldReturnZeroGivenEmptyString(): void
