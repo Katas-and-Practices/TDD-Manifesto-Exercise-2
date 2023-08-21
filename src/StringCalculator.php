@@ -22,6 +22,6 @@ class StringCalculator
 
     private function sum(array $numbers)
     {
-        return array_reduce($numbers, fn($carry, $number) => $carry + $number);
+        return array_reduce($numbers, fn($carry, $number) => $carry + ($number > 999 ? 0 : $number));
     }
 }

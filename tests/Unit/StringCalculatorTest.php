@@ -106,9 +106,9 @@ class StringCalculatorTest extends TestCase
 
     public function testShouldSumMultipleNumbersGivenMultiLengthCustomSeparator(): void
     {
-        $result = $this->calculator->add("//my\n19my425my6my9028my33");
+        $result = $this->calculator->add("//my\n19my425my6my527my33");
 
-        $this->assertSame(9511, $result);
+        $this->assertSame(1010, $result);
     }
 
     public function testShouldThrowExceptionWithMessageGivenWrongUsageOfSeparatorWithCustomSeparator(): void
@@ -130,5 +130,26 @@ class StringCalculatorTest extends TestCase
         $this->expectExceptionMessage("Negative number(s) not allowed: -10, -66, -3\nExpected \"|\" but \";\" found at position 10");
 
         $this->calculator->add("//|\n15|-10|235;-66|-3");
+    }
+
+    /**
+     * @dataProvider shouldNotSumNumbersLargerThan1000DataProvider
+     */
+    public function testShouldNotSumNumbersLargerThan1000(string $testcase, int $expected): void
+    {
+        $result = $this->calculator->add($testcase);
+
+        $this->assertSame($expected, $result);
+    }
+
+    public static function shouldNotSumNumbersLargerThan1000DataProvider(): array
+    {
+        return [
+            ["100,500\n1000", 600],
+            ['1,999', 1000],
+            ['10000', 0],
+            ['10000,1000,2000', 0],
+            ["//;\n500;999;2000", 1499],
+        ];
     }
 }
